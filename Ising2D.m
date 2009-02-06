@@ -10,9 +10,10 @@ startTime=datestr(now);
 Steps=20000;
 Energy=zeros(Steps+1,1);
 showplot=false;
-saveplot=true;
+saveplot=false;
+animate=false;
 Sps=1000;  %steps per save of data
-
+filestr=['home/pjung/nucMC/pics/' startTime '_T_' num2str(kbT) 'phi_' num2str(phi) '_'];
 
 if nargin<2,phi=.5; end
 if nargin<1,kbT=1; end
@@ -36,8 +37,7 @@ m=sum(sum(s==1));
 plotLattice(s)
 title('Initial State')
 if saveplot
-filestr=['nucMC/pics/' startTime 'Initialpos_T_' num2str(kbT) 'phi_' num2str(phi)];
-print('-r600','-depsc',filestr);
+print('-r600','-depsc',[filestr 'InitialPos']);
 close
 end
 %get the possible energy types
