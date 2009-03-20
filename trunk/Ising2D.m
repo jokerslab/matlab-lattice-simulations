@@ -1,5 +1,5 @@
 %Ising Model
-function [s,Energy,cor,clust,cave]=Ising2D(kbT,phi,s,Steps)
+function [s,cs,LL,F,Energy]=Ising2D(kbT,phi,s,Steps)
 
 %Random Number Generator Setup
 %rand('twister',sum(100*clock))
@@ -30,12 +30,14 @@ if nargin<1,kbT=1; end
 disp('Setting up Initial state')
 %s=sign(randn(rows,cols));
 if nargin<3
+    %Standard size 25,25
     rows=25;
     cols=25;
     s=sign(randn(rows,cols)-sqrt(2)*erfcinv(2*phi));
     s(s==1)=2;
     s(s==-1)=1;
 else
+    %If we input the size of the grid
     if length(s)==2
         rows=s(1);
         cols=s(2);
@@ -99,6 +101,8 @@ end
 %xxx3o4xxx
 %xxx728xxx
 
+%Not yet fully implemented
+%need to work out details to classify possible moves
 swapMoves=[2 4 5 6];
 flipMoves=[2];
 nMoves=length(swapMoves)+length(flipMoves);
@@ -126,14 +130,20 @@ d_p=exp(-d_energy./kbT);
 
 cor(:,:,1)=LatticeCorrelation(s,5);
 %s_old=s;
-[c,labels,csize]=clusterCount(s,3);
-maxLabel=max(labels)+1;
-clust(1)=sum(csize>10);
-cave(1)=mean(csize(csize>10));
+[cs,LL,F]=clusterCountEHK2(s,2);
+cs=properLabel(cs,LL);
+largest_label=length(LL);
+%maxLabel=max(labels)+1;
+%clust(1)=sum(csize>10);
+%cave(1)=mean(csize(csize>10));
+
 disp('Starting MainLoop')
 %Number of steps 
 oldavE=Energy(1);
 for t=1:Steps
+    
+    
+    %Intermittently save the current state for output
     if mod(t,Sps)==0
         t
         %LatticeCorrelation(s,0,s_old)
@@ -167,7 +177,7 @@ for t=1:Steps
 %        if si==0,si=N;end
 %        nd=nmoves(floor((q-1)/N)+1);
 if q<0
-   pts=find(c==labs(-q));
+    pts=find(cs==labs(-q));
     dir=floor(rand*4)+1;
     s(pts)=1;
     s(neighbors(dir,pts))=2;
@@ -180,37 +190,17 @@ else
            
         nd=swapMoves(nd);
         temp=s(si);
-        
+       
         n_1=neighbors(:,si);
         s(si)=s(n_1(nd));  %"swap" values
         
         %Swap the neighbor of the site that corresponds to the pair
         s(n_1(nd))=temp;
         
-%         %Update Labeled Cluster Matrix
-%         temp=c(si);
-%         c(si)=c(n_1(nd));
-%         c(n_1(nd))=temp;
-%         if (c(si)>0)
-%             %check any of my old neigbors, does my cluster still exist?
-%             oldNeighbors=neighbors(1:4,n_1(nd));
-%             %delete current point from neighbor list
-%             if nd<5
-%                 oldNeighbors(nd-1)=[];
-%             end
-%             if any(c(oldNeighbors)==c(si))
-%             clusterCheckPoints=n_1(1:4);
-%             if any(c(clusterCheckPoints)~=c(si) & c(clusterCheckPoints)>0)
-%                 %merge cluster
-%             elseif all(c(clusterCheckPoints)==0)
-%                 
-%             end
-%         else
-%             clusterCheckPoints=neighbors(1:4,n_1(nd));
-%         end
+        updateClusters
         %get the row and column of the site
        else
-           
+           %we flip states
            nd=1;
            if s(si)==2
                 s(si)=3;
@@ -301,10 +291,10 @@ end
 %         px(pI)=p2(pI);
         
 %move clusters
-        [c labs csize cpos]=clusterCount(s,2);
-        bigcI=find(csize>1);
+        %[c labs csize cpos]=clusterCount(s,2);
+        %bigcI=find(csize>1);
    
-    p{zerogroup}=[p{zerogroup};-bigcI];
+    %p{zerogroup}=[p{zerogroup};-bigcI];
     
         
         
@@ -369,13 +359,13 @@ ts=0:Sps:t;
 %title('Correlation 1 lattice site away')
 %filestr=['nucMC/pics/' startTime 'Correlation'];
 %print('-r600','-depsc',filestr);
-figure
-plot(ts,cave)
-title('Average cluster (>10) size')
-if saveplot
-filestr=['nucMC/pics/' startTime 'Csize'];
-print('-r600','-depsc',filestr);
-end
+%figure
+%plot(ts,cave)
+%title('Average cluster (>10) size')
+%if saveplot
+%filestr=['nucMC/pics/' startTime 'Csize'];
+%print('-r600','-depsc',filestr);
+%end
 end
 % function pausefig(src,evnt)
 %       if evnt.Character == 't'
