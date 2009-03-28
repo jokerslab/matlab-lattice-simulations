@@ -54,9 +54,9 @@ end
 
 %Output Parameters
 Sps=1000;  %steps per save of data
-showplot=false;
+showplot=true;
 saveplot=false;
-saveFrames=false;
+saveFrames=true;
 startTime=datestr(now);
 animate=false;
 filestr=['home/pjung/nucMC/pics/' startTime '_T_' num2str(kbT) 'phi_' num2str(phi) '_'];
@@ -147,14 +147,14 @@ for t=1:Steps
     if mod(t,Sps)==0
         t
         %LatticeCorrelation(s,0,s_old)
-        avE=mean(Energy(t-Sps+1:t));
-        avE-oldavE
-        oldavE=avE;
+        %avE=mean(Energy(t-Sps+1:t));
+        %avE-oldavE
+        %oldavE=avE;
         
         cor(:,:,t/Sps+1)=LatticeCorrelation(s,5);
-        [c,labels,csize]=clusterCount(s,3);
-        clust(t/Sps+1)=sum(csize>10);
-        cave(t/Sps+1)=mean(csize(csize>10));
+        %[c,labels,csize]=clusterCount(s,3);
+        %clust(t/Sps+1)=sum(csize>10);
+        %cave(t/Sps+1)=mean(csize(csize>10));
         
     end
         
@@ -177,13 +177,16 @@ for t=1:Steps
 %        if si==0,si=N;end
 %        nd=nmoves(floor((q-1)/N)+1);
 if q<0
-    pts=find(cs==labs(-q));
+    pts=find(properLabel(cs,LL)==-q);
     dir=floor(rand*4)+1;
     s(pts)=1;
     s(neighbors(dir,pts))=2;
     newpts=neighbors(dir,pts);
     pts=unique([pts;newpts']);
     nn=unique(neighbors(:,neighbors(:,pts)));
+    [cs,LL,F]=clusterCountEHK2(s,2);
+    cs=properLabel(cs,LL);
+    largest_label=length(LL);
 else
        [nd,si]=ind2sub(size(px),q);
        if nd<=length(swapMoves)
@@ -292,9 +295,9 @@ end
         
 %move clusters
         %[c labs csize cpos]=clusterCount(s,2);
-        %bigcI=find(csize>1);
+        bigcI=find(LL>1);
    
-    %p{zerogroup}=[p{zerogroup};-bigcI];
+    p{zerogroup}=[p{zerogroup};-bigcI];
     
         
         
@@ -306,6 +309,7 @@ end
        %subplot(3,3,[1:6])
        plotLattice(s, states)
        %plotBonds(px,d_en(2:end))
+       title(['Step' num2str(t,'%05d')]);
        pause(.01)
        %subplot(3,3,7)
        %for i=2:length(p)
