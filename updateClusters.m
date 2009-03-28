@@ -9,7 +9,10 @@ else
 end
 %count the neighbors before swap
    nbs=sum(cs(neighbors(1:4,preCSite))>0);
-
+    if nbs>1
+            dan=neighbors(1:4,preCSite);
+            dan=dan(cs(dan)>0);
+    end
    %Swap
    temp=cs(si);
    cs(si)=cs(n_1(nd));
@@ -18,13 +21,14 @@ end
    %get neighbors after swap
    nas=properLabel(cs(neighbors(1:4,postCsite)),LL);
    cspl=properLabel(cs(postCsite),LL);
+    [i,j]=ind2sub(size(cs),postCsite);
    if nbs==0
        if any(nas>0)
            nas=unique(nas(nas>0));
 
            %merge clusters
            [mn,imn]=min(nas);
-        [i,j]=ind2sub(size(cs),postCsite);
+        
             LL(nas(imn)) = 1+sum(LL(nas));
             F.x(nas(imn)) = j+sum(F.x(nas));
             F.y(nas(imn)) = i+sum(F.y(nas));
@@ -62,7 +66,7 @@ end
 
            %merge clusters
                [mn,imn]=min(nas);
-                [i,j]=ind2sub(size(cs),postCsite);
+               
                 LL(nas(imn)) = 1+sum(LL(nas));
                 F.x(nas(imn)) = j+sum(F.x(nas));
                 F.y(nas(imn)) = i+sum(F.y(nas));
@@ -83,31 +87,52 @@ end
                 F.y(largest_label)=i;
                 F.x2(largest_label)=j*j;
                 F.y2(largest_label)=i*i;
-                pts{largest_label}=postCsite;
+%                pts{largest_label}=postCsite;
                
                
            end
            
        end
         if nbs>1
-            dan=neighbors(1:4,preCSite);
-            dan=dan(cs(dan)>0);
-
+            
             line=scanBuild([],dan(1),neighbors(1:4,:),s);
-            if any(dan(2)==line)
+           
+            if length(dan)>2
+                %debugme
+                dan2=dan(~ismember(dan,line));
+                if ~isempty(dan2)
+                    largest_label=largest_label+1;
+                    cs(line)=largest_label;
+                        LL(largest_label)=length(line);
+                        LL(cspl)=LL(cspl)-length(line);
+                        [i,j]=ind2sub(size(cs),line);
+                        F.x(largest_label)=sum(j);
+                        F.y(largest_label)=sum(i);
+                        F.x2(largest_label)=sum(j.*j);
+                        F.y2(largest_label)=sum(i.*i);
+                        
+                        if length(dan2)>1
+                            line=scanBuild([],dan2(1),neighbors(1:4,:),s);
+                            dan=dan2;
+                        else
+                            line=dan(2);
+                        end
+                end
+             end
+                 if any(dan(2)==line)
                 %ok both points still in cluster
-            else
-                largest_label=largest_label+1;
-                cs(line)=largest_label;
-                LL(largest_label)=length(line);
-                LL(cspl)=LL(cspl)-length(line);
-                [i,j]=ind2sub(size(cs),line);
-                F.x(largest_label)=sum(j);
-                F.y(largest_label)=sum(i);
-                F.x2(largest_label)=sum(j.*j);
-                F.y2(largest_label)=sum(i.*i);
-                
-            end
+                 else
+                        largest_label=largest_label+1;
+                        cs(line)=largest_label;
+                        LL(largest_label)=length(line);
+                        LL(cspl)=LL(cspl)-length(line);
+                        [i,j]=ind2sub(size(cs),line);
+                        F.x(largest_label)=sum(j);
+                        F.y(largest_label)=sum(i);
+                        F.x2(largest_label)=sum(j.*j);
+                        F.y2(largest_label)=sum(i.*i);
+                 end
+            
             
             
         end
