@@ -56,7 +56,7 @@ end
 Sps=1000;  %steps per save of data
 showplot=true;
 saveplot=false;
-saveFrames=false;
+saveFrames=true;
 startTime=datestr(now);
 animate=false;
 filestr=['home/pjung/nucMC/pics/' startTime '_T_' num2str(kbT) 'phi_' num2str(phi) '_'];
