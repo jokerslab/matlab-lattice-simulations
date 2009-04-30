@@ -9,12 +9,12 @@ function [s,cs,LL,F,Energy]=Ising2D(kbT,phi,s,Steps)
 
 
 %Bond energies
-SS=2;
-SA=1;
+SS=1;
+SA=2;
 SC=-2;
-AA=2;
+AA=1;
 AC=-1;
-CC=-1;
+CC=4;
 et=[SS SA SC;SA AA AC;SC AC CC];
 
 NUMBER_NEIGHBORS=8;
@@ -54,9 +54,9 @@ end
 
 %Output Parameters
 Sps=1000;  %steps per save of data
-showplot=true;
+showplot=false;
 saveplot=false;
-saveFrames=true;
+saveFrames=false;
 startTime=datestr(now);
 animate=false;
 filestr=['home/pjung/nucMC/pics/' startTime '_T_' num2str(kbT) 'phi_' num2str(phi) '_'];
@@ -126,6 +126,13 @@ end
 %ignore first value in d_en since it indicates swapping same state
 d_energy=[0; d_en(2:end)];
 zerogroup=find(d_en==0);
+if isempty(zerogroup)
+        zerogroup=length(p)+1;
+        d_en(zerogroup)=0;
+        d_energy(zerogroup)=0;
+        p{zerogroup}=[];
+        
+end
 d_p=exp(-d_energy./kbT);
 
 cor(:,:,1)=LatticeCorrelation(s,5);
@@ -184,7 +191,7 @@ if q<0
     newpts=neighbors(dir,pts);
     pts=unique([pts;newpts']);
     nn=unique(neighbors(:,neighbors(:,pts)));
-    [cs,LL,F]=clusterCountEHK2(s,2);
+    [cs,LL,F]=clusterCountEHK2(s,[2 3]);
     cs=properLabel(cs,LL);
     largest_label=length(LL);
 else
@@ -245,7 +252,9 @@ else
         %update the lists if things change
 end
         [p2,e0]=classifypairs2(s,et,swapMoves,neighbors,nn);
+        
          p{zerogroup}(p{zerogroup}<0)=[];
+        
         for kk=1:length(nn)
             for pp=1:nMoves
 
@@ -297,7 +306,7 @@ end
         %[c labs csize cpos]=clusterCount(s,2);
         bigcI=find(LL>1);
    
-    p{zerogroup}=[p{zerogroup};-bigcI];
+%    p{zerogroup}=[p{zerogroup};-bigcI];
     
         
         
@@ -320,15 +329,17 @@ end
        %plot(0:t,Energy(1:t+1));
        %subplot(3,3,[1:6])
        if saveFrames
-        mF=getframe(gcf);
-        mFI=frame2im(mF);
-        directory = 'images/';  % The next four lines parse and assemble fil
-    
-        filename = [directory, num2str(t,'%06d'),'.png'];
-
-        imwrite(mFI,filename, 'png'); % Finally write individual images
-        clear mF
-        clear mFI
+%         mF=getframe(gcf);
+%         mFI=frame2im(mF);
+         directory = 'images/';  % The next four lines parse and assemble fil
+%     
+         filename = [directory, num2str(t,'%06d'),'.png'];
+% 
+%         imwrite(mFI,filename, 'png'); % Finally write individual images
+%         clear mF
+%         clear mFI
+            set(gcf,'PaperPositionMode','auto')
+            print(gcf,'-dpng','-r0',filename)
         end
        if get(gcf,'CurrentCharacter')=='p'    
         pause
