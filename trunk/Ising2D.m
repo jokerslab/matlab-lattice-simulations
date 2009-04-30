@@ -54,7 +54,7 @@ end
 
 %Output Parameters
 Sps=1000;  %steps per save of data
-showplot=false;
+showplot=true;
 saveplot=false;
 saveFrames=false;
 startTime=datestr(now);
