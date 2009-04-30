@@ -1,6 +1,11 @@
 function [c LL F pts]=clusterCountEHK2(s,value)
 if nargin<2
     value=-1;
+elseif length(value)>1
+  for i=1:length(value)
+      s(s==value(i))=value(1);
+  end
+  value=value(1);
 end
 Not=value+25;
 [r,c1]=size(s);
@@ -101,7 +106,7 @@ for i=1:r
 end
 if periodicBCs
 for i=1:r
-    if s(i,1)==value && s(i,c1)==value 
+    if s(i,1)==value && s(i,c1)==value
         s1=properLabel(c(i,1));
         s2=properLabel(c(i,c1));
         if s1<s2
@@ -130,7 +135,7 @@ end
 
 for j=1:c1
     
-    if s(1,j)==value && s(r,j)==value 
+    if s(1,j)==value && s(r,j)==value
         s1=properLabel(c(1,j));
         s2=properLabel(c(r,j));
         if s1<s2
