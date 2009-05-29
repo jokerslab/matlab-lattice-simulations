@@ -9,19 +9,26 @@ function [s,cs,LL,F,Energy]=Ising2D(kbT,phi,s,Steps)
 
 
 %Bond energies
-SS=1;
-SA=2;
-SC=-2;
-AA=1;
-AC=-1;
-CC=4;
-et=[SS SA SC;SA AA AC;SC AC CC];
+SS=1;  %1
+SA=1.5;  %2
+SC=0; %-2
+AA=1; %1
+AC=-1; %-1
+CC=4; %4
+
+WW=0;SW=0;CW=0;AW=0;  %Wall interactions
+
+et=[SS SA SC SW;
+    SA AA AC AW;
+    SC AC CC CW
+    SW AW CW WW];
 
 NUMBER_NEIGHBORS=8;
-states=[1 2 3];
+states=[1 2 3 4];
 %1--solvent
 %2 --amorphous
 %3 --Crystal
+%4 --Wall
 
 %Set up Default Arguments
 
@@ -54,12 +61,19 @@ end
 
 %Output Parameters
 Sps=1000;  %steps per save of data
+Spp=250;  %steps per plot
+Spf=25;   %steps per frame
 showplot=true;
 saveplot=false;
 saveFrames=true;
+showMoves=false;
 startTime=datestr(now);
 animate=false;
 filestr=['home/pjung/nucMC/pics/' startTime '_T_' num2str(kbT) 'phi_' num2str(phi) '_'];
+if saveFrames
+    mkdir(['images/' startTime]);
+    directory = strcat('images/',startTime,'/'); 
+end
 
 
 
@@ -113,15 +127,11 @@ d_en=unique(px);
 %Create lists for each scenerio pair
  
 for i=1:length(d_en)
-    p{i}=find(px==d_en(i));
+    p{i}=(px==d_en(i));
+    pLength(i)=nnz(p{i});
 end
 
-plistindex=zeros(size(px));
-for i=1:length(p)
-    for j=1:length(p{i})
-        plistindex(p{i}(j))=j;
-    end
-end
+
 %Create energy for each sceneriio pair
 %ignore first value in d_en since it indicates swapping same state
 d_energy=[0; d_en(2:end)];
@@ -130,7 +140,8 @@ if isempty(zerogroup)
         zerogroup=length(p)+1;
         d_en(zerogroup)=0;
         d_energy(zerogroup)=0;
-        p{zerogroup}=[];
+        p{zerogroup}=false(size(px));
+        pLength(zerogroup)=0;
         
 end
 d_p=exp(-d_energy./kbT);
@@ -167,16 +178,17 @@ for t=1:Steps
         
     %Running sum of number of pairs * delta energy of switch
     %Skip the first pair category since the swap does not change
-    q1(1)=length(p{2})*d_p(2);
+    q1(1)=pLength(2)*d_p(2);
     for r=2:length(d_p)-1
-        q1(r)=q1(r-1)+length(p{r+1})*d_p(r+1);
+        q1(r)=q1(r-1)+pLength(r+1)*d_p(r+1);
     end
     
     %Select a random number to determine which category pair to swap
        temp=rand*q1(end);
        st=find(q1>temp,1)+1;
        %Select a random pair from that category
-       q=p{st}(ceil(length(p{st}).*rand));
+       tList=find(p{st});
+       q=tList(ceil(pLength(st).*rand));
        Energy(t+1)=Energy(t)+d_energy(st);
        %Now that q=the pair index lets do the swap and recalculate the
        %list
@@ -207,10 +219,11 @@ else
         %Swap the neighbor of the site that corresponds to the pair
         s(n_1(nd))=temp;
         
-        updateClusters
+%        updateClusters
         %get the row and column of the site
        else
            %we flip states
+           
            nd=1;
            if s(si)==2
                 s(si)=3;
@@ -221,7 +234,7 @@ else
            n_1=si;
            
        end
-        if showplot
+        if showplot && showMoves
             [r c]=ind2sub([rows cols],si);
         line('xdata',c,'ydata',-r,'markersize',10,'marker','o', ...
     'linestyle','none','markerfacecolor','red','markeredgecolor','black')
@@ -253,7 +266,7 @@ else
 end
         [p2,e0]=classifypairs2(s,et,swapMoves,neighbors,nn);
         
-         p{zerogroup}(p{zerogroup}<0)=[];
+        % p{zerogroup}(p{zerogroup}<0)=[];
         
         for kk=1:length(nn)
             for pp=1:nMoves
@@ -261,29 +274,38 @@ end
                 if px(pp,nn(kk))~=p2(pp,nn(kk))
                     oldgroup=find(d_en==px(pp,nn(kk)));
                     newgroup=find(d_en==p2(pp,nn(kk)));
+                    
+                    %Try using logical trackers
+                    p{oldgroup}(pp,nn(kk))=0;
+                    pLength(oldgroup)=pLength(oldgroup)-1;
                     %The following search is slow
-                    ind=plistindex(pp,nn(kk));
                     
-                    
-                        plistindex(p{oldgroup}(ind:end))=...
-                        plistindex(p{oldgroup}(ind:end))-1;
-                    
-                    p{oldgroup}(ind)=[];
+%                     ind=plistindex(pp,nn(kk));
+%                     
+%                     
+%                         plistindex(p{oldgroup}(ind:end))=...
+%                         plistindex(p{oldgroup}(ind:end))-1;
+%                     
+%                     p{oldgroup}(ind)=[];
                     if isempty(newgroup)
                         newgroup=length(p)+1;
                         d_en(newgroup)=p2(pp,nn(kk));
                         d_energy(newgroup)=p2(pp,nn(kk));
                         d_p=exp(-d_energy./kbT);
-                        p{newgroup}=[nMoves*(nn(kk)-1)+pp ];
+                        %p{newgroup}=[nMoves*(nn(kk)-1)+pp ];
+                        p{newgroup}=false(size(px));
+                        pLength(newgroup)=0;
+                        
                     else
                         
-                        p{newgroup}=[p{newgroup};nMoves*(nn(kk)-1)+pp ];
+                        %p{newgroup}=[p{newgroup};nMoves*(nn(kk)-1)+pp ];
                         
                     end
                     
+                        p{newgroup}(pp,nn(kk))=1;
+                        pLength(newgroup)=pLength(newgroup)+1;
                     
-                    
-                    plistindex(pp,nn(kk))=length(p{newgroup});
+                    %plistindex(pp,nn(kk))=length(p{newgroup});
                     
                 end
             end
@@ -304,13 +326,13 @@ end
         
 %move clusters
         %[c labs csize cpos]=clusterCount(s,2);
-        bigcI=find(LL>1);
+        %bigcI=find(LL>1);
    
 %    p{zerogroup}=[p{zerogroup};-bigcI];
     
         
         
-       if showplot
+       if showplot  && mod(t-1,Spp)==0
        if strcmp(get(gcf,'CurrentCharacter'),'p')    
         pause
        end
@@ -328,23 +350,24 @@ end
        %subplot(3,3,8)
        %plot(0:t,Energy(1:t+1));
        %subplot(3,3,[1:6])
-       if saveFrames
-%         mF=getframe(gcf);
-%         mFI=frame2im(mF);
-         directory = 'images/';  % The next four lines parse and assemble fil
-%     
-         filename = [directory, num2str(t,'%06d'),'.png'];
-% 
-%         imwrite(mFI,filename, 'png'); % Finally write individual images
-%         clear mF
-%         clear mFI
-            set(gcf,'PaperPositionMode','auto')
-            print(gcf,'-dpng','-r0',filename)
-        end
+       
        if get(gcf,'CurrentCharacter')=='p'    
         pause
        end
        end
+       if saveFrames && mod(t-1,Spf)==0
+
+          % The next four lines parse and assemble fil
+%     
+         filename = [directory, num2str(t,'%06d'),'.png'];
+% 
+%            set(gcf,'PaperPositionMode','auto')
+            
+%            print(gcf,'-dpng','-r0',filename)
+            
+            imwrite(s,[1 1 1;0 0 0;0 1 0],filename)
+            
+        end
 end
 
 %Plot the outputs
