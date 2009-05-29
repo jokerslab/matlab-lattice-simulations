@@ -42,7 +42,7 @@ currentEnergy=0;
 
 for kk=1:length(pts)
     pts1=ne([2 4 5 6],pts(kk));
-        if s(pts(kk))==1
+        if s(pts(kk))==1 || s(pts(kk))==4
             pairs(5,pts(kk))=nomove;
         end
         if s(pts(kk))==2
@@ -54,8 +54,10 @@ for kk=1:length(pts)
     for cnt=1:length(pts1)
 %         pairs(cnt+4,pts(kk))=nomove;
 %         pairs(cnt+8,pts(kk))=nomove;
+
+       
         
-    if s(pts(kk))==s(pts1(cnt))  
+    if s(pts(kk))==s(pts1(cnt))  || s(pts(kk))==4 || s(pts1(cnt))==4
            pairs(cnt,pts(kk))=nomove;
     else
         pairs(cnt,pts(kk))=findEnergyDifference(pts(kk),pts1(cnt),s(pts1(cnt)),s(pts(kk)));
