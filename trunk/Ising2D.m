@@ -71,7 +71,7 @@ Spp=1000;  %steps per plot
 Spf=500;   %steps per frame
 showplot=true;
 saveplot=false;
-saveFrames=true;
+saveFrames=false;
 showMoves=false;
 startTime=datestr(now,'yyyymmmdd-HHMM');
 animate=false;
@@ -85,8 +85,9 @@ if saveFrames
     imwrite(s,[1 1 1;0 0 0;0 1 0;.5 .5 .5; 0 0 1],filename)
 end
 
+orientation=zeros(size(s));
 
-
+checkAbsorb=all(s(1,:)==5);
 
 N=rows*cols;
 
@@ -174,6 +175,7 @@ relt=0;
 for t=1:Steps
     
     %Absorbing top boundry
+    if checkAbsorb
     atb=(s(1,:)==2);
     if any(atb)
         sttt=sttt+1;
@@ -181,7 +183,7 @@ for t=1:Steps
         relt(sttt)=t;
         s(1,atb)=5;
     end
-    
+    end
     %Intermittently save the current state for output
     if mod(t,Sps)==0
         t
@@ -205,6 +207,9 @@ for t=1:Steps
     end
     
     %Select a random number to determine which category pair to swap
+       if q1(end)==0
+           break;
+       end
        temp=rand*q1(end);
        st=find(q1>temp,1)+1;
        %Select a random pair from that category
@@ -413,8 +418,10 @@ filestr=['nucMC/pics/' startTime 'Energy'];
 print('-r600','-depsc',filestr);
 end
 ts=0:Sps:t;
+if checkAbsorb
 figure
 plot(relt,release)
+end
 %figure
 %plot(ts,cor(5,6,:))
 %title('Correlation 1 lattice site away')
