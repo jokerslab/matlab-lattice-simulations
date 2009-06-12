@@ -9,26 +9,32 @@ function [s,cs,LL,F,Energy]=Ising2D(kbT,phi,s,Steps)
 
 
 %Bond energies
-SS=1;  %1
-SA=1.5;  %2
-SC=0; %-2
-AA=1; %1
-AC=-1; %-1
-CC=4; %4
+SS=0;  %1
+SA=.1;  %2
+SC=-1.1; %-2
+AA=0; %1
+AC=-.1; %-1
+CC=1; %4
 
 WW=0;SW=0;CW=0;AW=0;  %Wall interactions
 
-et=[SS SA SC SW;
-    SA AA AC AW;
-    SC AC CC CW
-    SW AW CW WW];
+%Water Interactions
+
+AQS=0;AQA=.6;AQC=.1;AQW=0;AQAQ=0;
+
+et=[SS SA SC SW AQS;
+    SA AA AC AW AQA;
+    SC AC CC CW AQC;
+    SW AW CW WW AQW;
+    AQS AQA AQC AQW AQAQ];
 
 NUMBER_NEIGHBORS=8;
-states=[1 2 3 4];
+states=[1 2 3 4 5];
 %1--solvent
 %2 --amorphous
 %3 --Crystal
 %4 --Wall
+%5 --Water
 
 %Set up Default Arguments
 
@@ -61,18 +67,22 @@ end
 
 %Output Parameters
 Sps=1000;  %steps per save of data
-Spp=250;  %steps per plot
-Spf=25;   %steps per frame
+Spp=1000;  %steps per plot
+Spf=500;   %steps per frame
 showplot=true;
 saveplot=false;
 saveFrames=true;
 showMoves=false;
-startTime=datestr(now);
+startTime=datestr(now,'yyyymmmdd-HHMM');
 animate=false;
 filestr=['home/pjung/nucMC/pics/' startTime '_T_' num2str(kbT) 'phi_' num2str(phi) '_'];
 if saveFrames
     mkdir(['images/' startTime]);
     directory = strcat('images/',startTime,'/'); 
+    filename = [directory 'Em_T_' num2str(kbT) '.txt'];
+    save(filename,'et','-ASCII')
+    filename = [directory, num2str(0,'%07d'),'.png'];
+    imwrite(s,[1 1 1;0 0 0;0 1 0;.5 .5 .5; 0 0 1],filename)
 end
 
 
@@ -158,8 +168,19 @@ largest_label=length(LL);
 disp('Starting MainLoop')
 %Number of steps 
 oldavE=Energy(1);
+release=0;
+sttt=1;
+relt=0;
 for t=1:Steps
     
+    %Absorbing top boundry
+    atb=(s(1,:)==2);
+    if any(atb)
+        sttt=sttt+1;
+        release(sttt)=release(sttt-1)+nnz(atb);
+        relt(sttt)=t;
+        s(1,atb)=5;
+    end
     
     %Intermittently save the current state for output
     if mod(t,Sps)==0
@@ -332,7 +353,7 @@ end
     
         
         
-       if showplot  && mod(t-1,Spp)==0
+       if showplot  && mod(t,Spp)==0
        if strcmp(get(gcf,'CurrentCharacter'),'p')    
         pause
        end
@@ -355,17 +376,17 @@ end
         pause
        end
        end
-       if saveFrames && mod(t-1,Spf)==0
+       if saveFrames && mod(t,Spf)==0
 
           % The next four lines parse and assemble fil
 %     
-         filename = [directory, num2str(t,'%06d'),'.png'];
+         filename = [directory, num2str(t,'%07d'),'.png'];
 % 
 %            set(gcf,'PaperPositionMode','auto')
             
 %            print(gcf,'-dpng','-r0',filename)
             
-            imwrite(s,[1 1 1;0 0 0;0 1 0],filename)
+            imwrite(s,[1 1 1;0 0 0;0 1 0;.5 .5 .5;0 0 1],filename)
             
         end
 end
@@ -392,6 +413,8 @@ filestr=['nucMC/pics/' startTime 'Energy'];
 print('-r600','-depsc',filestr);
 end
 ts=0:Sps:t;
+figure
+plot(relt,release)
 %figure
 %plot(ts,cor(5,6,:))
 %title('Correlation 1 lattice site away')
