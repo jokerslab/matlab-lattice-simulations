@@ -25,7 +25,7 @@ if D==2
     [r,c]=size(sites);
     d=max(r,c);
     if d>60
-       colormap([1 1 1;0 0 0;0 1 0;0 0 1])
+       colormap([1 1 1;0 0 0;0 1 0;.5 .5 .5;0 0 1])
        image(sites); 
     else
     msize=max(250/d,4);
