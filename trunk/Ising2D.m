@@ -67,12 +67,12 @@ end
 
 %Output Parameters
 Sps=1000;  %steps per save of data
-Spp=1000;  %steps per plot
+Spp=100;  %steps per plot
 Spf=500;   %steps per frame
 showplot=true;
 saveplot=false;
 saveFrames=false;
-showMoves=false;
+showMoves=true;
 startTime=datestr(now,'yyyymmmdd-HHMM');
 animate=false;
 filestr=['home/pjung/nucMC/pics/' startTime '_T_' num2str(kbT) 'phi_' num2str(phi) '_'];
@@ -240,11 +240,15 @@ else
         temp=s(si);
        
         n_1=neighbors(:,si);
-        s(si)=s(n_1(nd));  %"swap" values
+        if temp==2 && s(n_1(nd))==2 %flip bond
+            s(si)=3;
+            s(n_1(nd))=3;
+        else
+          s(si)=s(n_1(nd));  %"swap" values
         
-        %Swap the neighbor of the site that corresponds to the pair
-        s(n_1(nd))=temp;
-        
+          %Swap the neighbor of the site that corresponds to the pair
+          s(n_1(nd))=temp;
+        end
 %        updateClusters
         %get the row and column of the site
        else
@@ -255,6 +259,15 @@ else
                 s(si)=3;
            else
                s(si)=2;
+                for gi=1:4
+                    if s(neighbors(gi,si))==3
+                        
+                        if ~any(s(neighbors(1:4,neighbors(gi,si)))==3)
+                            s(neighbors(gi,si))=2;
+                        end
+                    end
+                  
+                end
                
            end
            n_1=si;
