@@ -45,8 +45,13 @@ for kk=1:length(pts)
         if s(pts(kk))==1 || s(pts(kk))==4 || s(pts(kk))==5
             pairs(5,pts(kk))=nomove;
         end
-        if s(pts(kk))==2
+        %originaly flip individual
+        %if s(pts(kk))==2
+        %change to only flip attached
+        if s(pts(kk))==2 && any(s(ne(1:4,pts(kk)))==3)
              pairs(5,pts(kk))=findEnergyDifference1(pts(kk),3);
+        else
+            pairs(5,pts(kk))=nomove;
         end
          if s(pts(kk))==3
                pairs(5,pts(kk))=findEnergyDifference1(pts(kk),2);
@@ -59,12 +64,18 @@ for kk=1:length(pts)
         
     if s(pts(kk))==s(pts1(cnt))  || s(pts(kk))==4 || s(pts1(cnt))==4 ...
             || (s(pts(kk))==5 && s(pts1(cnt))==1) || ...
-            (s(pts(kk))==1 && s(pts1(cnt))==5)
+            (s(pts(kk))==1 && s(pts1(cnt))==5) || ...
+            s(pts(kk))==3 || s(pts1(cnt))==3
         
            pairs(cnt,pts(kk))=nomove;
     else
         pairs(cnt,pts(kk))=findEnergyDifference(pts(kk),pts1(cnt),s(pts1(cnt)),s(pts(kk)));
             
+    end
+    if cnt<3
+     if s(pts(kk))==2 && s(pts1(cnt))==2
+        pairs(cnt,pts(kk))=findEnergyDifference(pts(kk),pts1(cnt),3,3);
+     end
     end
     end
         
@@ -100,6 +111,17 @@ e11=sum(et(s(p1),s(ne(1:4,p1))));
 
             %Swap
             s(p1)=newp1;
+            if newp1==2
+                for gi=1:4
+                    if s(ne(gi,p1))==3
+                        
+                        if ~any(s(ne(1:4,ne(gi,p1)))==3)
+                            %s(ne(gi,p1))=2;
+                        end
+                    end
+                  
+                end
+            end
            
             %Energy After swap
 e21=sum(et(s(p1),s(ne(1:4,p1))));
