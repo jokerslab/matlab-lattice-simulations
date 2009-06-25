@@ -1,6 +1,6 @@
 %Ising Model
 function [s,cs,LL,F,Energy]=Ising2D(kbT,phi,s,Steps)
-
+%this is a test
 %Random Number Generator Setup
 %rand('twister',sum(100*clock))
 %randn('state',sum(100*clock))
@@ -8,27 +8,10 @@ function [s,cs,LL,F,Energy]=Ising2D(kbT,phi,s,Steps)
 %randn('state',5)
 
 
-%Bond energies
-SS=0;  %1
-SA=.1;  %2
-SC=-1.1; %-2
-AA=0; %1
-AC=-.1; %-1
-CC=1; %4
-
-WW=0;SW=0;CW=0;AW=0;  %Wall interactions
-
-%Water Interactions
-
-AQS=0;AQA=.6;AQC=.1;AQW=0;AQAQ=0;
-
-et=[SS SA SC SW AQS;
-    SA AA AC AW AQA;
-    SC AC CC CW AQC;
-    SW AW CW WW AQW;
-    AQS AQA AQC AQW AQAQ];
+bondenergy
 
 NUMBER_NEIGHBORS=8;
+
 states=[1 2 3 4 5];
 %1--solvent
 %2 --amorphous
@@ -43,20 +26,17 @@ if nargin<1,kbT=1; end
 disp('Setting up Initial state')
 %s=sign(randn(rows,cols));
 if nargin<3
-    %Standard size 25,25
-    rows=25;
-    cols=25;
-    s=sign(randn(rows,cols)-sqrt(2)*erfcinv(2*phi));
-    s(s==1)=2;
-    s(s==-1)=1;
+    %Standard size 64,64
+    rows=64;
+    cols=64;
+    s=createInitialState(phi,[rows cols]);
+    
 else
     %If we input the size of the grid
     if length(s)==2
         rows=s(1);
         cols=s(2);
-        s=sign(randn(rows,cols)-sqrt(2)*erfcinv(2*phi));
-        s(s==1)=2;
-        s(s==-1)=1;
+        s=createInitialState(phi,[rows cols]);
     else
     [rows,cols]=size(s);
     end
@@ -67,12 +47,12 @@ end
 
 %Output Parameters
 Sps=1000;  %steps per save of data
-Spp=100;  %steps per plot
+Spp=1000;  %steps per plot
 Spf=500;   %steps per frame
 showplot=true;
 saveplot=false;
-saveFrames=false;
-showMoves=true;
+saveFrames=true;
+showMoves=false;
 startTime=datestr(now,'yyyymmmdd-HHMM');
 animate=false;
 filestr=['home/pjung/nucMC/pics/' startTime '_T_' num2str(kbT) 'phi_' num2str(phi) '_'];
@@ -159,9 +139,12 @@ d_p=exp(-d_energy./kbT);
 
 cor(:,:,1)=LatticeCorrelation(s,5);
 %s_old=s;
-[cs,LL,F]=clusterCountEHK2(s,2);
+[cs,LL,F]=clusterCountEHK2(s,[2 3]);
 cs=properLabel(cs,LL);
 largest_label=length(LL);
+larC(1)=max(LL);
+nnc(1)=nnz(LL>5);
+fre1(1)=nnz(LL==1);
 %maxLabel=max(labels)+1;
 %clust(1)=sum(csize>10);
 %cave(1)=mean(csize(csize>10));
@@ -191,8 +174,11 @@ for t=1:Steps
         %avE=mean(Energy(t-Sps+1:t));
         %avE-oldavE
         %oldavE=avE;
-        
-        cor(:,:,t/Sps+1)=LatticeCorrelation(s,5);
+        [cs,LL,F]=clusterCountEHK2(s,[2 3]);
+        larC(t/Sps+1)=max(LL);
+        nnc(t/Sps+1)=nnz(LL>5);
+        fre1(t/Sps+1)=nnz(LL==1);
+        %cor(:,:,t/Sps+1)=LatticeCorrelation(s,5);
         %[c,labels,csize]=clusterCount(s,3);
         %clust(t/Sps+1)=sum(csize>10);
         %cave(t/Sps+1)=mean(csize(csize>10));
@@ -243,6 +229,8 @@ else
         if temp==2 && s(n_1(nd))==2 %flip bond
             s(si)=3;
             s(n_1(nd))=3;
+            orientation(si)=nd;
+            orientation(n_1(nd))=nd;
         else
           s(si)=s(n_1(nd));  %"swap" values
         
@@ -273,17 +261,25 @@ else
            n_1=si;
            
        end
-        if showplot && showMoves
-            [r c]=ind2sub([rows cols],si);
-        line('xdata',c,'ydata',-r,'markersize',10,'marker','o', ...
-    'linestyle','none','markerfacecolor','red','markeredgecolor','black')
+       
+       
+       %No longer need to look at moves indivdually
+       
+       
+%         if showplot && showMoves
+%             [r c]=ind2sub([rows cols],si);
+%         line('xdata',c,'ydata',-r,'markersize',10,'marker','o', ...
+%     'linestyle','none','markerfacecolor','red','markeredgecolor','black')
+% 
+%             [r c]=ind2sub([rows cols],n_1(nd));
+%         line('xdata',c,'ydata',-r,'markersize',10,'marker','o', ...
+%     'linestyle','none','markerfacecolor','red','markeredgecolor','black')
+%         
+%         end
+        
+        
 
-            [r c]=ind2sub([rows cols],n_1(nd));
-        line('xdata',c,'ydata',-r,'markersize',10,'marker','o', ...
-    'linestyle','none','markerfacecolor','red','markeredgecolor','black')
-        
-        end
-        
+
         %for now, reclassify bonds
         %in the future can precalculate changes
         
@@ -410,47 +406,6 @@ end
 end
 
 %Plot the outputs
+Ising2Doutput
 
-figure()
-plotLattice(s, [1 2 3],{'none' [.5 .5 .5],'black'})
-title(['State after ' num2str(t) ' steps'])
-if saveplot
-    
-    print('-r600','-depsc',[filestr 'Finalpos']);
-end
-%figure()
-%plotLattice(pairs,[0 1 2 3 4 5 6 -1])
-figure()
-%plotLattice(classifypairs(s),[0 1 2 3 4 5 6 -1])
-plot(0:t,Energy(1:t+1));
-ylabel('Energy')
-xlabel('Steps')
-title('Energy of System')
-if saveplot
-filestr=['nucMC/pics/' startTime 'Energy'];
-print('-r600','-depsc',filestr);
-end
-ts=0:Sps:t;
-if checkAbsorb
-figure
-plot(relt,release)
-end
-%figure
-%plot(ts,cor(5,6,:))
-%title('Correlation 1 lattice site away')
-%filestr=['nucMC/pics/' startTime 'Correlation'];
-%print('-r600','-depsc',filestr);
-%figure
-%plot(ts,cave)
-%title('Average cluster (>10) size')
-%if saveplot
-%filestr=['nucMC/pics/' startTime 'Csize'];
-%print('-r600','-depsc',filestr);
-%end
-end
-% function pausefig(src,evnt)
-%       if evnt.Character == 't'
-%          pause(1)
-%       end
-% end
 
