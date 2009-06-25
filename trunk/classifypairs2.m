@@ -106,7 +106,7 @@ s(p2)=oldp2;
 end
 function Ediff=findEnergyDifference1(p1,newp1)
 oldp1=s(p1);
-
+e21=0;
 e11=sum(et(s(p1),s(ne(1:4,p1))));
 
             %Swap
@@ -116,7 +116,9 @@ e11=sum(et(s(p1),s(ne(1:4,p1))));
                     if s(ne(gi,p1))==3
                         
                         if ~any(s(ne(1:4,ne(gi,p1)))==3)
+                            e11=e11+sum(et(3,s(ne(1:4,ne(gi,p1)))));
                             %s(ne(gi,p1))=2;
+                            e21=e21+sum(et(2,s(ne(1:4,ne(gi,p1)))));
                         end
                     end
                   
@@ -124,7 +126,7 @@ e11=sum(et(s(p1),s(ne(1:4,p1))));
             end
            
             %Energy After swap
-e21=sum(et(s(p1),s(ne(1:4,p1))));
+e21=e21+sum(et(s(p1),s(ne(1:4,p1))));
 
             Ediff=-(e21-e11);
             %Swap Back for further calculations
