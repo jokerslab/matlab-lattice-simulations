@@ -1,5 +1,12 @@
 function [pairs,currentEnergy]=classifypairs2(state,energyMatrix,moves,ne,pts)
 %Classify the bond pair by calculating change in energy if swapped
+%For each neighboring pair, stores the change in energy if move is allowed
+%The energy is stored in a stacks of the original lattice site matrix
+%Each potential move is a stack containing the change in energy for the
+%move. pairs is the resultant set of stacks (currently there are 5
+%potential moves. The pair to the right, the pair down, two diagonals, and
+%flipping state
+%[pairs,currentEnergy]=classifypairs2(state,energyMatrix,moves,ne,pts)
 
 %pairs stores energy for swaping sites
 %not swappable value to use
@@ -91,12 +98,14 @@ oldp1=s(p1);
 oldp2=s(p2);
 e11=sum(et(s(p1),s(ne(1:4,p1))));
 e12=sum(et(s(p2),s(ne(1:4,p2))));
+e11=e11-et(oldp1,oldp2);
             %Swap
             s(p1)=newp1;
             s(p2)=newp2;
             %Energy After swap
 e21=sum(et(s(p1),s(ne(1:4,p1))));
 e22=sum(et(s(p2),s(ne(1:4,p2))));
+e22=e22-et(newp1,newp2);
             Ediff=-(e21+e22-e11-e12);
             %Swap Back for further calculations
             
