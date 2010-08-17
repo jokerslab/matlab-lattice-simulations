@@ -1,6 +1,6 @@
-%Plot Lattice
-%Dan Jung
 function a=plotBonds(sites,varargin)
+%Plot Lattice plots the various bonds
+%Dan Jung
 D=ndims(sites);
 if length(varargin)<1
     vals=[-1 1];
