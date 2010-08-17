@@ -1,6 +1,15 @@
-%Ising Model
 function [s,cs,LL,F,Energy]=Ising2D(kbT,phi,s,Steps)
-%this is a test
+%Ising Model main routine
+%This function is the main method used to run simulations
+%This is the main function/routine used to start and compute the simulation. 
+%Given the temperature,  composition and size of lattice, and the number of
+%steps, 
+%this function will pseudo-kinetically step through lattice states
+%function [s,cs,LL,F,Energy]=Ising2D(kbT,phi,s,Steps)
+
+
+
+
 %Random Number Generator Setup
 %rand('twister',sum(100*clock))
 %randn('state',sum(100*clock))
@@ -46,7 +55,7 @@ if nargin<4
 end
 
 %Output Parameters
-Sps=1000;  %steps per save of data
+Sps=10;  %steps per save of data
 Spp=1000;  %steps per plot
 Spf=500;   %steps per frame
 showplot=true;
@@ -73,6 +82,8 @@ N=rows*cols;
 
 %Initialize Arrays
 Energy=zeros(Steps+1,1);
+frac2=zeros(Steps,1);
+frac3=zeros(Steps,1);
 
 %4 neighbors in 2d
 %8 next nearest neighbors in 2d
@@ -114,11 +125,11 @@ nMoves=length(swapMoves)+length(flipMoves);
 
 %Classify pair types;
 [px Energy(1)]=classifypairs2(s,et,swapMoves,neighbors);
-d_en=unique(px);
+d_en=unique(round(px*1e5)/1e5);
 %Create lists for each scenerio pair
  
 for i=1:length(d_en)
-    p{i}=(px==d_en(i));
+    p{i}=(abs(px-d_en(i))<1e-5);
     pLength(i)=nnz(p{i});
 end
 
@@ -155,6 +166,7 @@ oldavE=Energy(1);
 release=0;
 sttt=1;
 relt=0;
+
 for t=1:Steps
     
     %Absorbing top boundry
@@ -168,6 +180,8 @@ for t=1:Steps
     end
     end
     %Intermittently save the current state for output
+    frac2(t)=nnz(s==2);
+    frac3(t)=nnz(s==3);
     if mod(t,Sps)==0
         t
         %LatticeCorrelation(s,0,s_old)
@@ -175,9 +189,12 @@ for t=1:Steps
         %avE-oldavE
         %oldavE=avE;
         [cs,LL,F]=clusterCountEHK2(s,[2 3]);
+        LL23{t/Sps+1}=LL;
         larC(t/Sps+1)=max(LL);
         nnc(t/Sps+1)=nnz(LL>5);
         fre1(t/Sps+1)=nnz(LL==1);
+        [cs,LL,F]=clusterCountEHK2(s,[3]);
+        LL3{t/Sps+1}=LL;
         %cor(:,:,t/Sps+1)=LatticeCorrelation(s,5);
         %[c,labels,csize]=clusterCount(s,3);
         %clust(t/Sps+1)=sum(csize>10);
@@ -220,12 +237,13 @@ if q<0
     largest_label=length(LL);
 else
        [nd,si]=ind2sub(size(px),q);
+       n_1=neighbors(:,si);
        if nd<=length(swapMoves)
            
         nd=swapMoves(nd);
         temp=s(si);
        
-        n_1=neighbors(:,si);
+        
         if temp==2 && s(n_1(nd))==2 %flip bond
             s(si)=3;
             s(n_1(nd))=3;
@@ -258,7 +276,7 @@ else
                 end
                
            end
-           n_1=si;
+          % n_1=si;
            
        end
        
@@ -301,14 +319,19 @@ else
 end
         [p2,e0]=classifypairs2(s,et,swapMoves,neighbors,nn);
         
+%         [crap1 EnergyTemp]=classifypairs2(s,et,swapMoves,neighbors);
+%         if abs(EnergyTemp-Energy(t+1))>.01
+%            EnergyTemp
+%            Energy(t+1)
+%         end
         % p{zerogroup}(p{zerogroup}<0)=[];
         
         for kk=1:length(nn)
             for pp=1:nMoves
 
-                if px(pp,nn(kk))~=p2(pp,nn(kk))
-                    oldgroup=find(d_en==px(pp,nn(kk)));
-                    newgroup=find(d_en==p2(pp,nn(kk)));
+                if abs(px(pp,nn(kk))-p2(pp,nn(kk)))>0.001
+                    oldgroup=find(abs(d_en-px(pp,nn(kk)))<0.001);
+                    newgroup=find(abs(d_en-p2(pp,nn(kk)))<0.001);
                     
                     %Try using logical trackers
                     p{oldgroup}(pp,nn(kk))=0;
