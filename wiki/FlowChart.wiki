@@ -1,9 +1,10 @@
 #summary Flow Chart of Algorithm
 
-= Introduction =
+= The main code algorithm is shown below =
 
 Add your content here.
 
+http://matlab-lattice-simulations.googlecode.com/svn/wiki/images/crystalcluster.png
 
 = Details =
 
