@@ -12,10 +12,14 @@ function [pairs,currentEnergy]=classifypairs2(state,energyMatrix,moves,ne,pts)
 %not swappable value to use
 nomove=-250;
 
-
+global pairsMap
 %flips stores energy difference for allowed flips
 
 s=state;
+
+%rescale=[1 2 6];
+%rescaleS=rescale(s);
+
 % nStates=length(stateValues);
 % logicalIndex=false([size(s) nStates]);
 % for istate=1:nStates
@@ -96,22 +100,28 @@ end
 function Ediff=findEnergyDifference(p1,p2,newp1,newp2)
 oldp1=s(p1);
 oldp2=s(p2);
-e11=sum(et(s(p1),s(ne(1:4,p1))));
-e12=sum(et(s(p2),s(ne(1:4,p2))));
-e11=e11-et(oldp1,oldp2);
+
+
+if (pairsMap(oldp1,oldp2,s(ne(1,p1)),s(ne(2,p1)),s(ne(3,p1)),s(ne(4,p1)),s(ne(1,p2)),s(ne(2,p2)),s(ne(3,p2)),s(ne(4,p2)),newp1,newp2)>-500)
+    Ediff=pairsMap(oldp1,oldp2,s(ne(1,p1)),s(ne(2,p1)),s(ne(3,p1)),s(ne(4,p1)),s(ne(1,p2)),s(ne(2,p2)),s(ne(3,p2)),s(ne(4,p2)),newp1,newp2);
+else
+    e11=sum(et(s(p1),s(ne(1:4,p1))));
+    e12=sum(et(s(p2),s(ne(1:4,p2))));
+    e11=e11-et(oldp1,oldp2);
             %Swap
             s(p1)=newp1;
             s(p2)=newp2;
             %Energy After swap
-e21=sum(et(s(p1),s(ne(1:4,p1))));
-e22=sum(et(s(p2),s(ne(1:4,p2))));
-e22=e22-et(newp1,newp2);
+    e21=sum(et(s(p1),s(ne(1:4,p1))));
+    e22=sum(et(s(p2),s(ne(1:4,p2))));
+    e22=e22-et(newp1,newp2);
             Ediff=-(e21+e22-e11-e12);
             %Swap Back for further calculations
             
-s(p1)=oldp1;
-s(p2)=oldp2;
-
+    s(p1)=oldp1;
+    s(p2)=oldp2;
+    pairsMap(oldp1,oldp2,s(ne(1,p1)),s(ne(2,p1)),s(ne(3,p1)),s(ne(4,p1)),s(ne(1,p2)),s(ne(2,p2)),s(ne(3,p2)),s(ne(4,p2)),newp1,newp2)=Ediff;
+end
 end
 function Ediff=findEnergyDifference1(p1,newp1)
 oldp1=s(p1);

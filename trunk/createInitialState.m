@@ -1,5 +1,9 @@
 function s=createInitialState(phi,size)
-
+%createInitialState creates the initial lattice state as a matrix
+%The function requires the phi, the volume fraction of solute and the size
+%of the lattice given as a vector [rows cols]. The function returns the
+%lattice as a matrix s with 1's and 2's representing the solvent and solute
+%particles
 s=double(rand(size)<phi)+1;
 
 

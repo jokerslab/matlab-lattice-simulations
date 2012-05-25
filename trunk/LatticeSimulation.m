@@ -1,14 +1,51 @@
-function [s,cs,LL,F,Energy]=Ising2D(kbT,phi,s,Steps)
-%Ising Model main routine
+function [s,cs,LL,F,Energy]=LatticeSimulation(varargin)
+%Lattice Simulation Model main routine
 %This function is the main method used to run simulations
 %This is the main function/routine used to start and compute the simulation. 
-%Given the temperature,  composition and size of lattice, and the number of
-%steps, 
-%this function will pseudo-kinetically step through lattice states
-%function [s,cs,LL,F,Energy]=Ising2D(kbT,phi,s,Steps)
+%There are several available parameters and options that can be set,
+%although the simulation will run with 'default' arguments if no parameters
+%are set
+%
+%List of Parameters
+%
+%kbT    Temperature in units of kbT (default is 1)
+%phi    Volume fraction of solute if generating random initial state (0.5)
+%Steps  # of simulation steps to run (default is 1000)
+%
+%List of options
+%Examples
+%Running default simulation:
+%LatticeSimulation();
+%
+%Running default simulation but with 1 million step simulation and kbt=2:
+%LatticeSimulation('kbt',2,'Steps',1000000);
 
+%LatticeSimulation(kbT,phi,s,Steps,chiAB,chiAC,epsilon,gamma)
 
+% Create an instance of the inputParser class.
+p = inputParser;
+p.addParamValue('kbT',1,@(x)isnumeric(x) && isscalar(x) && x>0);
+p.addParamValue('phi',.5,@(x)isnumeric(x) && isscalar(x) && x>=0 &&x<=1);
+p.addParamValue('s',[64 64]);
+p.addParamValue('Steps',1000,@(x)isnumeric(x) && isscalar(x));
+p.addParamValue('chiAB',-0.1,@(x)isnumeric(x) && isscalar(x));
+p.addParamValue('chiAC',0.6,@(x)isnumeric(x) && isscalar(x));
+p.addParamValue('epsilon',-1,@(x)isnumeric(x) && isscalar(x));
+p.addParamValue('gamma',1.1,@(x)isnumeric(x) && isscalar(x));
 
+%Output Parameters
+p.addParamValue('Sps',100,@(x)isnumeric(x) && isscalar(x)); %steps per save of data
+p.addParamValue('Spp',3000,@(x)isnumeric(x) && isscalar(x)); %steps per plot
+p.addParamValue('Spf',1500,@(x)isnumeric(x) && isscalar(x)); %steps per frame used in creating movies
+p.addParamValue('showplot',true,@(x)islogical(x) && isscaler(x));
+p.addParamValue('saveplot',false,@(x)islogical(x) && isscaler(x));
+p.addParamValue('saveFrames',true,@(x)islogical(x) && isscaler(x));
+p.addParamValue('showMoves',false,@(x)islogical(x) && isscaler(x));
+
+p.parse(varargin{:});
+% Show the value of a specific argument.
+params=p.Results;
+clear p;
 
 %Random Number Generator Setup
 %rand('twister',sum(100*clock))
@@ -16,8 +53,8 @@ function [s,cs,LL,F,Energy]=Ising2D(kbT,phi,s,Steps)
 %rand('twister',10)
 %randn('state',5)
 
-
-bondenergy
+    
+et=computeInteractionParameters(params.chiAB,params.chiAC,params.epsilon,params.gamma);
 
 NUMBER_NEIGHBORS=8;
 
@@ -30,45 +67,29 @@ states=[1 2 3 4 5];
 
 %Set up Default Arguments
 
-if nargin<2,phi=.5; end
-if nargin<1,kbT=1; end
-disp('Setting up Initial state')
-%s=sign(randn(rows,cols));
-if nargin<3
-    %Standard size 64,64
-    rows=64;
-    cols=64;
-    s=createInitialState(phi,[rows cols]);
-    
-else
-    %If we input the size of the grid
-    if length(s)==2
-        rows=s(1);
-        cols=s(2);
-        s=createInitialState(phi,[rows cols]);
-    else
-    [rows,cols]=size(s);
-    end
-end
-if nargin<4
-    Steps=1000;
-end
 
-%Output Parameters
-Sps=10;  %steps per save of data
-Spp=1000;  %steps per plot
-Spf=500;   %steps per frame
-showplot=true;
-saveplot=false;
-saveFrames=true;
-showMoves=false;
+disp('Setting up Initial state')
+
+
+    %If we input the size of the grid
+    if length(params.s)==2
+        rows=params.s(1);
+        cols=params.s(2);
+        s=createInitialState(params.phi,[rows cols]);
+    else
+        [rows,cols]=size(params.s);
+        s=params.s;
+    end
+
+
+
 startTime=datestr(now,'yyyymmmdd-HHMM');
 animate=false;
-filestr=['home/pjung/nucMC/pics/' startTime '_T_' num2str(kbT) 'phi_' num2str(phi) '_'];
-if saveFrames
+
+if params.saveFrames
     mkdir(['images/' startTime]);
     directory = strcat('images/',startTime,'/'); 
-    filename = [directory 'Em_T_' num2str(kbT) '.txt'];
+    filename = [directory 'Em_T_' num2str(params.kbT) '.txt'];
     save(filename,'et','-ASCII')
     filename = [directory, num2str(0,'%07d'),'.png'];
     imwrite(s,[1 1 1;0 0 0;0 1 0;.5 .5 .5; 0 0 1],filename)
@@ -81,9 +102,9 @@ checkAbsorb=all(s(1,:)==5);
 N=rows*cols;
 
 %Initialize Arrays
-Energy=zeros(Steps+1,1);
-frac2=zeros(Steps,1);
-frac3=zeros(Steps,1);
+Energy=zeros(params.Steps+1,1);
+frac2=zeros(params.Steps,1);
+frac3=zeros(params.Steps,1);
 
 %4 neighbors in 2d
 %8 next nearest neighbors in 2d
@@ -96,9 +117,9 @@ m=sum(sum(s==1));
 plotLattice(s,states)
 title('Initial State')
 
-if saveplot
-print('-r600','-depsc',[filestr 'InitialPos']);
-close
+if params.saveplot
+    print('-r600','-depsc',[filestr 'InitialPos']);
+    close
 end
 
 
@@ -124,6 +145,8 @@ flipMoves=[2];
 nMoves=length(swapMoves)+length(flipMoves);
 
 %Classify pair types;
+global pairsMap
+pairsMap=-1000*ones(3,3,3,3,3,3,3,3,3,3,3,3);
 [px Energy(1)]=classifypairs2(s,et,swapMoves,neighbors);
 d_en=unique(round(px*1e5)/1e5);
 %Create lists for each scenerio pair
@@ -146,7 +169,7 @@ if isempty(zerogroup)
         pLength(zerogroup)=0;
         
 end
-d_p=exp(-d_energy./kbT);
+d_p=exp(-d_energy./params.kbT);
 
 cor(:,:,1)=LatticeCorrelation(s,5);
 %s_old=s;
@@ -167,7 +190,7 @@ release=0;
 sttt=1;
 relt=0;
 
-for t=1:Steps
+for t=1:params.Steps
     
     %Absorbing top boundry
     if checkAbsorb
@@ -182,19 +205,19 @@ for t=1:Steps
     %Intermittently save the current state for output
     frac2(t)=nnz(s==2);
     frac3(t)=nnz(s==3);
-    if mod(t,Sps)==0
+    if mod(t,params.Sps)==0
         t
         %LatticeCorrelation(s,0,s_old)
         %avE=mean(Energy(t-Sps+1:t));
         %avE-oldavE
         %oldavE=avE;
         [cs,LL,F]=clusterCountEHK2(s,[2 3]);
-        LL23{t/Sps+1}=LL;
-        larC(t/Sps+1)=max(LL);
-        nnc(t/Sps+1)=nnz(LL>5);
-        fre1(t/Sps+1)=nnz(LL==1);
+        LL23{t/params.Sps+1}=LL;
+        larC(t/params.Sps+1)=max(LL);
+        nnc(t/params.Sps+1)=nnz(LL>5);
+        fre1(t/params.Sps+1)=nnz(LL==1);
         [cs,LL,F]=clusterCountEHK2(s,[3]);
-        LL3{t/Sps+1}=LL;
+        LL3{t/params.Sps+1}=LL;
         %cor(:,:,t/Sps+1)=LatticeCorrelation(s,5);
         %[c,labels,csize]=clusterCount(s,3);
         %clust(t/Sps+1)=sum(csize>10);
@@ -349,7 +372,7 @@ end
                         newgroup=length(p)+1;
                         d_en(newgroup)=p2(pp,nn(kk));
                         d_energy(newgroup)=p2(pp,nn(kk));
-                        d_p=exp(-d_energy./kbT);
+                        d_p=exp(-d_energy./params.kbT);
                         %p{newgroup}=[nMoves*(nn(kk)-1)+pp ];
                         p{newgroup}=false(size(px));
                         pLength(newgroup)=0;
@@ -390,7 +413,7 @@ end
     
         
         
-       if showplot  && mod(t,Spp)==0
+       if params.showplot  && mod(t,params.Spp)==0
        if strcmp(get(gcf,'CurrentCharacter'),'p')    
         pause
        end
@@ -413,7 +436,7 @@ end
         pause
        end
        end
-       if saveFrames && mod(t,Spf)==0
+       if params.saveFrames && mod(t,params.Spf)==0
 
           % The next four lines parse and assemble fil
 %     

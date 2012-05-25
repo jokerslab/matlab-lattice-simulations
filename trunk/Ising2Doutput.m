@@ -1,4 +1,5 @@
-if saveFrames
+%Produce the Graphs and save the data from a LatticeSimulation
+if params.saveFrames
     filename = [directory, 'data.mat'];
     save(filename);
 end
@@ -6,7 +7,7 @@ end
 figure()
 plotLattice(s, [1 2 3],{'none' [.5 .5 .5],'black'})
 title(['State after ' num2str(t) ' steps'])
-if saveplot
+if params.saveplot
     
     print('-r600','-depsc',[filestr 'Finalpos']);
 end
@@ -18,15 +19,21 @@ plot(0:t,Energy(1:t+1));
 ylabel('Energy')
 xlabel('Steps')
 title('Energy of System')
-if saveplot
+if params.saveplot
 filestr=['nucMC/pics/' startTime 'Energy'];
 print('-r600','-depsc',filestr);
 end
-ts=0:Sps:t;
+ts=0:params.Sps:t;
 if checkAbsorb
 figure
 plot(relt,release)
 end
+figure();
+plot(ts,fre1/4096,'b',1:t,frac3/4096,'r',1:t,frac2/4096,'g')
+xlabel('Simulation Steps');
+ylabel('Concentration')
+legend('Free B','B*','B')
+%title('k_bT = 1 \chi_{AB} = -0.1 \chi_{AB^*} = 0.2 \epsilon = -0.5 \gamma= 0.5')
 %figure
 %plot(ts,cor(5,6,:))
 %title('Correlation 1 lattice site away')
