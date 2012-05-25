@@ -1,0 +1,31 @@
+/* Created by mdot for Matlab */
+digraph m2html {
+  Ising2Doutput -> plotLattice;
+  LatticeSimulation -> Ising2Doutput;
+  LatticeSimulation -> LatticeCorrelation;
+  LatticeSimulation -> classifypairs2;
+  LatticeSimulation -> clusterCountEHK2;
+  LatticeSimulation -> computeInteractionParameters;
+  LatticeSimulation -> createInitialState;
+  LatticeSimulation -> neighbors2d;
+  LatticeSimulation -> plotLattice;
+  LatticeSimulation -> properLabel;
+  classifypairs2 -> neighbors2d;
+  clusterCountEHK2 -> properLabel;
+  createNeighborMatrix -> neighbors2d;
+
+  Ising2Doutput [URL="Ising2Doutput.html"];
+  LatticeCorrelation [URL="LatticeCorrelation.html"];
+  LatticeSimulation [URL="LatticeSimulation.html"];
+  addParametersToWorkSpace [URL="addParametersToWorkSpace.html"];
+  bondenergy [URL="bondenergy.html"];
+  classifypairs2 [URL="classifypairs2.html"];
+  clusterCountEHK2 [URL="clusterCountEHK2.html"];
+  computeInteractionParameters [URL="computeInteractionParameters.html"];
+  createInitialState [URL="createInitialState.html"];
+  createNeighborMatrix [URL="createNeighborMatrix.html"];
+  dataPlotsTest [URL="dataPlotsTest.html"];
+  neighbors2d [URL="neighbors2d.html"];
+  plotLattice [URL="plotLattice.html"];
+  properLabel [URL="properLabel.html"];
+}

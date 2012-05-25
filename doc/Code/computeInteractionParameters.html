@@ -1,0 +1,76 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of computeInteractionParameters</title>
+  <meta name="keywords" content="computeInteractionParameters">
+  <meta name="description" content="computeInteractionParameters calcuate the individual interaction between">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">Code</a> &gt; computeInteractionParameters.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for Code&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>computeInteractionParameters
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>computeInteractionParameters calcuate the individual interaction between</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function [ et ] = computeInteractionParameters( chiSA,chiSC,epsilon,gamma ) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment">computeInteractionParameters calcuate the individual interaction between
+components and output in a matrix
+   Given the interaction parameters,surface energy and crystal melt
+   compute the indivdual interaction energies</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="LatticeSimulation.html" class="code" title="function [s,cs,LL,F,Energy]=LatticeSimulation(varargin)">LatticeSimulation</a>	Lattice Simulation Model main routine</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [ et ] = computeInteractionParameters( chiSA,chiSC,epsilon,gamma )</a>
+0002 <span class="comment">%computeInteractionParameters calcuate the individual interaction between</span>
+0003 <span class="comment">%components and output in a matrix</span>
+0004 <span class="comment">%   Given the interaction parameters,surface energy and crystal melt</span>
+0005 <span class="comment">%   compute the indivdual interaction energies</span>
+0006 SS=0; 
+0007 AA=0;
+0008 SA=chiSA;
+0009 SC=gamma;
+0010 
+0011 AC=chiSC+epsilon/2;
+0012 CC=epsilon;
+0013 
+0014 WW=0;SW=0;CW=0;AW=0;  <span class="comment">%Wall interactions</span>
+0015 
+0016 <span class="comment">%Water Interactions</span>
+0017 
+0018 AQS=0;AQA=.6;AQC=.1;AQW=0;AQAQ=0;
+0019 
+0020 et=-1*[SS SA SC SW AQS;
+0021     SA AA AC AW AQA;
+0022     SC AC CC CW AQC;
+0023     SW AW CW WW AQW;
+0024     AQS AQA AQC AQW AQAQ];
+0025 <span class="keyword">end</span>
+0026</pre></div>
+<hr><address>Generated on Mon 21-May-2012 09:54:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

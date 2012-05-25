@@ -1,0 +1,88 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of createInitialState</title>
+  <meta name="keywords" content="createInitialState">
+  <meta name="description" content="createInitialState creates the initial lattice state as a matrix">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">Code</a> &gt; createInitialState.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for Code&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>createInitialState
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>createInitialState creates the initial lattice state as a matrix</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function s=createInitialState(phi,size) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment">createInitialState creates the initial lattice state as a matrix
+The function requires the phi, the volume fraction of solute and the size
+of the lattice given as a vector [rows cols]. The function returns the
+lattice as a matrix s with 1's and 2's representing the solvent and solute
+particles</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="LatticeSimulation.html" class="code" title="function [s,cs,LL,F,Energy]=LatticeSimulation(varargin)">LatticeSimulation</a>	Lattice Simulation Model main routine</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function s=createInitialState(phi,size)</a>
+0002 <span class="comment">%createInitialState creates the initial lattice state as a matrix</span>
+0003 <span class="comment">%The function requires the phi, the volume fraction of solute and the size</span>
+0004 <span class="comment">%of the lattice given as a vector [rows cols]. The function returns the</span>
+0005 <span class="comment">%lattice as a matrix s with 1's and 2's representing the solvent and solute</span>
+0006 <span class="comment">%particles</span>
+0007 s=double(rand(size)&lt;phi)+1;
+0008 
+0009 
+0010 sites=size(1)*size(2);
+0011 
+0012 psites=round(phi*sites);
+0013 r=(s==2);
+0014 q=~r;
+0015 p1=nnz(r);
+0016 <span class="keyword">while</span> p1~=psites
+0017     
+0018 <span class="keyword">if</span> p1&gt;psites
+0019     r1=find(r);
+0020     s(r1(ceil(length(r1)*rand(p1-psites,1))))=1;
+0021 <span class="keyword">elseif</span> p1&lt;psites
+0022     r1=find(q);
+0023     s(r1(ceil(length(r1)*rand(psites-p1,1))))=2;
+0024 <span class="keyword">end</span>
+0025 r=(s==2);
+0026 q=~r;
+0027 p1=nnz(r);
+0028 <span class="keyword">end</span>
+0029 
+0030 
+0031 <span class="comment">% s=ones(size);</span>
+0032 <span class="comment">% tic</span>
+0033 <span class="comment">% while nnz(s==2)&lt;psites</span>
+0034 <span class="comment">%     s(ceil(sites*rand))=2;</span>
+0035 <span class="comment">% end</span>
+0036 <span class="comment">% toc</span>
+0037 <span class="comment">% nnz(s==2)/sites</span></pre></div>
+<hr><address>Generated on Mon 21-May-2012 09:54:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

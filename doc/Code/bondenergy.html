@@ -1,0 +1,78 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of bondenergy</title>
+  <meta name="keywords" content="bondenergy">
+  <meta name="description" content="Bond energies">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">Code</a> &gt; bondenergy.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for Code&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>bondenergy
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>Bond energies</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>This is a script file. </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment">Bond energies
+Parameter file that sets the Energy between different neighbor states
+Energy interactions stored as a symmetric matrix for lookup</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <span class="comment">%Bond energies</span>
+0002 <span class="comment">%Parameter file that sets the Energy between different neighbor states</span>
+0003 <span class="comment">%Energy interactions stored as a symmetric matrix for lookup</span>
+0004 SS=0;  <span class="comment">%1</span>
+0005 SA=.1;  <span class="comment">%2 chiSA=-.1</span>
+0006 SC=-1.1; <span class="comment">%-2 gamma=1.1</span>
+0007 AA=0; <span class="comment">%1</span>
+0008 AC=-.1; <span class="comment">%-1 chicAC=.6</span>
+0009 CC=1; <span class="comment">%4 epsislon=-1</span>
+0010 
+0011 SS=-1;  <span class="comment">%1</span>
+0012 SA=-.9;  <span class="comment">%2</span>
+0013 SC=-2.1; <span class="comment">%-2</span>
+0014 AA=-1; <span class="comment">%1</span>
+0015 AC=-1.1; <span class="comment">%-1</span>
+0016 CC=0; <span class="comment">%4</span>
+0017 
+0018 
+0019 WW=0;SW=0;CW=0;AW=0;  <span class="comment">%Wall interactions</span>
+0020 
+0021 <span class="comment">%Water Interactions</span>
+0022 
+0023 AQS=0;AQA=.6;AQC=.1;AQW=0;AQAQ=0;
+0024 
+0025 et=[SS SA SC SW AQS;
+0026     SA AA AC AW AQA;
+0027     SC AC CC CW AQC;
+0028     SW AW CW WW AQW;
+0029     AQS AQA AQC AQW AQAQ];</pre></div>
+<hr><address>Generated on Mon 21-May-2012 09:54:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

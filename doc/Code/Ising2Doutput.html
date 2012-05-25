@@ -1,0 +1,100 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of Ising2Doutput</title>
+  <meta name="keywords" content="Ising2Doutput">
+  <meta name="description" content="">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">Code</a> &gt; Ising2Doutput.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for Code&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>Ising2Doutput
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong></strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>This is a script file. </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"></pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="plotLattice.html" class="code" title="function a=plotLattice(sites,varargin)">plotLattice</a>	Plot Lattice</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="LatticeSimulation.html" class="code" title="function [s,cs,LL,F,Energy]=LatticeSimulation(varargin)">LatticeSimulation</a>	Lattice Simulation Model main routine</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <span class="keyword">if</span> params.saveFrames
+0002     filename = [directory, <span class="string">'data.mat'</span>];
+0003     save(filename);
+0004 <span class="keyword">end</span>
+0005 
+0006 figure()
+0007 <a href="plotLattice.html" class="code" title="function a=plotLattice(sites,varargin)">plotLattice</a>(s, [1 2 3],{<span class="string">'none'</span> [.5 .5 .5],<span class="string">'black'</span>})
+0008 title([<span class="string">'State after '</span> num2str(t) <span class="string">' steps'</span>])
+0009 <span class="keyword">if</span> params.saveplot
+0010     
+0011     print(<span class="string">'-r600'</span>,<span class="string">'-depsc'</span>,[filestr <span class="string">'Finalpos'</span>]);
+0012 <span class="keyword">end</span>
+0013 <span class="comment">%figure()</span>
+0014 <span class="comment">%plotLattice(pairs,[0 1 2 3 4 5 6 -1])</span>
+0015 figure()
+0016 <span class="comment">%plotLattice(classifypairs(s),[0 1 2 3 4 5 6 -1])</span>
+0017 plot(0:t,Energy(1:t+1));
+0018 ylabel(<span class="string">'Energy'</span>)
+0019 xlabel(<span class="string">'Steps'</span>)
+0020 title(<span class="string">'Energy of System'</span>)
+0021 <span class="keyword">if</span> params.saveplot
+0022 filestr=[<span class="string">'nucMC/pics/'</span> startTime <span class="string">'Energy'</span>];
+0023 print(<span class="string">'-r600'</span>,<span class="string">'-depsc'</span>,filestr);
+0024 <span class="keyword">end</span>
+0025 ts=0:params.Sps:t;
+0026 <span class="keyword">if</span> checkAbsorb
+0027 figure
+0028 plot(relt,release)
+0029 <span class="keyword">end</span>
+0030 figure();
+0031 plot(ts,fre1/4096,<span class="string">'b'</span>,1:t,frac3/4096,<span class="string">'r'</span>,1:t,frac2/4096,<span class="string">'g'</span>)
+0032 xlabel(<span class="string">'Simulation Steps'</span>);
+0033 ylabel(<span class="string">'Concentration'</span>)
+0034 legend(<span class="string">'Free B'</span>,<span class="string">'B*'</span>,<span class="string">'B'</span>)
+0035 <span class="comment">%title('k_bT = 1 \chi_{AB} = -0.1 \chi_{AB^*} = 0.2 \epsilon = -0.5 \gamma= 0.5')</span>
+0036 <span class="comment">%figure</span>
+0037 <span class="comment">%plot(ts,cor(5,6,:))</span>
+0038 <span class="comment">%title('Correlation 1 lattice site away')</span>
+0039 <span class="comment">%filestr=['nucMC/pics/' startTime 'Correlation'];</span>
+0040 <span class="comment">%print('-r600','-depsc',filestr);</span>
+0041 <span class="comment">%figure</span>
+0042 <span class="comment">%plot(ts,cave)</span>
+0043 <span class="comment">%title('Average cluster (&gt;10) size')</span>
+0044 <span class="comment">%if saveplot</span>
+0045 <span class="comment">%filestr=['nucMC/pics/' startTime 'Csize'];</span>
+0046 <span class="comment">%print('-r600','-depsc',filestr);</span>
+0047 <span class="comment">%end</span>
+0048 
+0049 <span class="comment">% function pausefig(src,evnt)</span>
+0050 <span class="comment">%       if evnt.Character == 't'</span>
+0051 <span class="comment">%          pause(1)</span>
+0052 <span class="comment">%       end</span>
+0053 <span class="comment">% end</span></pre></div>
+<hr><address>Generated on Mon 21-May-2012 09:54:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

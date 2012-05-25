@@ -1,0 +1,100 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of neighbors2d</title>
+  <meta name="keywords" content="neighbors2d">
+  <meta name="description" content="neighbors2d creates a matrix whose entries return a vector of nearest">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">Code</a> &gt; neighbors2d.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for Code&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>neighbors2d
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>neighbors2d creates a matrix whose entries return a vector of nearest</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function n=neighbors2d(i,j,rows,columns) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment">neighbors2d creates a matrix whose entries return a vector of nearest
+neighbor indices</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="LatticeSimulation.html" class="code" title="function [s,cs,LL,F,Energy]=LatticeSimulation(varargin)">LatticeSimulation</a>	Lattice Simulation Model main routine</li><li><a href="classifypairs2.html" class="code" title="function [pairs,currentEnergy]=classifypairs2(state,energyMatrix,moves,ne,pts)">classifypairs2</a>	Classify the bond pair by calculating change in energy if swapped</li><li><a href="createNeighborMatrix.html" class="code" title="function neighbors=createNeighborMatrix(rows,cols)">createNeighborMatrix</a>	</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function n=neighbors2d(i,j,rows,columns)</a>
+0002 <span class="comment">%neighbors2d creates a matrix whose entries return a vector of nearest</span>
+0003 <span class="comment">%neighbor indices</span>
+0004         <span class="keyword">if</span> nargin&lt;4
+0005             columns=rows;
+0006             rows=j;
+0007             index=i;
+0008             
+0009             [i j]=ind2sub([rows columns],index);
+0010         <span class="keyword">else</span>
+0011         index=(j-1)*rows+i;
+0012         <span class="keyword">end</span>
+0013         n=zeros(1,8);
+0014         <span class="keyword">if</span> (i~=1) &amp;&amp; (i~=rows)
+0015             n(1:2)=[index-1 index+1];
+0016             <span class="keyword">if</span> (j~=1) &amp;&amp; (j~=columns)
+0017                 n(5:8)=[index-rows-1 index+rows-1 index-rows+1 index+rows+1];
+0018             <span class="keyword">elseif</span> j==1
+0019                 n(5:8)=[index+(columns-1)*rows-1 index+rows-1 index+(columns-1)*rows+1 index+rows+1];
+0020             <span class="keyword">else</span>
+0021                 n(5:8)=[index-rows-1 index-(columns-1)*rows-1 index-rows+1 index-(columns-1)*rows+1 ];
+0022             <span class="keyword">end</span> 
+0023             
+0024         <span class="keyword">elseif</span> i==1
+0025             n(1:2)=[index+rows-1 index+1];
+0026             <span class="keyword">if</span> (j~=1) &amp;&amp; (j~=columns)
+0027                 n(5:8)=[index-1 index+rows+rows-1 index-rows+1 index+rows+1];
+0028             <span class="keyword">elseif</span> j==1
+0029                 n(5:8)=[index+(columns-1)*rows+rows-1 index+rows+rows-1 index+(columns-1)*rows+1 index+rows+1];
+0030             <span class="keyword">else</span>
+0031                 n(5:8)=[index-1 index-(columns-1)*rows-1+rows index-rows+1 index-(columns-1)*rows+1 ];
+0032             <span class="keyword">end</span> 
+0033         <span class="keyword">else</span>
+0034             n(1:2)=[index-1 index-rows+1];
+0035             <span class="keyword">if</span> (j~=1) &amp;&amp; (j~=columns)
+0036                 n(5:8)=[index-rows-1 index+rows-1 index-2*rows+1 index+1];
+0037             <span class="keyword">elseif</span> j==1
+0038                 n(5:8)=[index+(columns-1)*rows-1 index+rows-1 index+(columns-1)*rows+1-rows index+1];
+0039             <span class="keyword">else</span>
+0040                 n(5:8)=[index-rows-1 index-(columns-1)*rows-1 index-2*rows+1 index-(columns-1)*rows+1-rows ];
+0041             <span class="keyword">end</span> 
+0042         <span class="keyword">end</span>
+0043         <span class="keyword">if</span> (j~=1) &amp;&amp; (j~=columns)
+0044             n(3:4)=[index-rows index+rows];
+0045         <span class="keyword">elseif</span> j==1
+0046             n(3:4)=[index+(columns-1)*rows index+rows];
+0047         <span class="keyword">else</span>
+0048             n(3:4)=[index-rows index-(columns-1)*rows];
+0049         <span class="keyword">end</span>
+0050         
+0051         
+0052     <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Mon 21-May-2012 09:54:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

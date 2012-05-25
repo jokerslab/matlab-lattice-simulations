@@ -1,0 +1,104 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of LatticeCorrelation</title>
+  <meta name="keywords" content="LatticeCorrelation">
+  <meta name="description" content="Lattice Correlation">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">Code</a> &gt; LatticeCorrelation.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for Code&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>LatticeCorrelation
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>Lattice Correlation</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function [g]=LatticeCorrelation(s,n,s2) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment">Lattice Correlation</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="LatticeSimulation.html" class="code" title="function [s,cs,LL,F,Energy]=LatticeSimulation(varargin)">LatticeSimulation</a>	Lattice Simulation Model main routine</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <span class="comment">%Lattice Correlation</span>
+0002 <a name="_sub0" href="#_subfunctions" class="code">function [g]=LatticeCorrelation(s,n,s2)</a>
+0003 [r,c]=size(s);
+0004 N=r*c;
+0005 c1=[];
+0006 <span class="keyword">if</span> nargin&lt;3
+0007     s2=s;
+0008 <span class="keyword">end</span>
+0009 g=zeros(2*n+1);
+0010 <span class="keyword">if</span> n&lt;=0
+0011     g=sum(sum(s.*s2))/N;
+0012 <span class="keyword">else</span>
+0013 <span class="keyword">for</span> i=-n:n
+0014     <span class="keyword">for</span> j=-n:n
+0015         <span class="keyword">if</span> i&gt;=0 &amp;&amp; j&gt;=0
+0016             s3=[s2(i+1:r,j+1:c) s2(i+1:r,1:j);s2(1:i,j+1:c) s2(1:i,1:j)];
+0017             
+0018         <span class="keyword">end</span>
+0019         <span class="keyword">if</span> i&gt;=0 &amp;&amp; j&lt;0
+0020             s3=[s2(i+1:r,c+j+1:c) s2(i+1:r,1:c+j);s2(1:i,c+j+1:c) s2(1:i,1:c+j)];
+0021             
+0022         <span class="keyword">end</span>
+0023         <span class="keyword">if</span> i&lt;0 &amp;&amp; j&gt;=0
+0024             s3=[s2(r+i+1:r,j+1:c) s2(r+i+1:r,1:j);s2(1:r+i,j+1:c) s2(1:r+i,1:j)];
+0025             
+0026         <span class="keyword">end</span>
+0027         <span class="keyword">if</span> i&lt;0 &amp;&amp; j&lt;0
+0028             s3=[s2(r+1+i:r,c+j+1:c) s2(r+1+i:r,1:c+j);s2(1:r+i,c+j+1:c) s2(1:r+i,1:c+j)];
+0029             
+0030         <span class="keyword">end</span>
+0031         g(i+n+1,j+n+1)=sum(sum(s.*s3))/N;
+0032                 
+0033     <span class="keyword">end</span>
+0034 <span class="keyword">end</span>
+0035 <span class="keyword">end</span>
+0036 <span class="comment">%if n&gt;0</span>
+0037 <span class="comment">%     su=[s2(2:r,:);s2(1,:)];</span>
+0038 <span class="comment">%     sd=[s2(r,:);s2(1:r-1,:)];</span>
+0039 <span class="comment">%     sl=[s2(:,2:c) s2(:,1)];</span>
+0040 <span class="comment">%     sr=[s2(:,c) s2(:,1:c-1)];</span>
+0041 <span class="comment">%     p1=sum(sum(abs(su-s)))/N;</span>
+0042 <span class="comment">%     p2=sum(sum(abs(sd-s)))/N;</span>
+0043 <span class="comment">%     p3=sum(sum(abs(sl-s)))/N;</span>
+0044 <span class="comment">%     p4=sum(sum(abs(sr-s)))/N;</span>
+0045 <span class="comment">%     c1=max([p1 p2 p3 p4]);</span>
+0046 <span class="comment">%     d1=LatticeCorrelation(s,n-1,su);</span>
+0047 <span class="comment">%     d2=LatticeCorrelation(s,n-1,sd);</span>
+0048 <span class="comment">%     d3=LatticeCorrelation(s,n-1,sl);</span>
+0049 <span class="comment">%     d4=LatticeCorrelation(s,n-1,sr);</span>
+0050 <span class="comment">%     c2=max([d1 d2 d3 d4]);</span>
+0051 <span class="comment">%</span>
+0052 <span class="comment">%     c1=[c1 LatticeCorrelation(s,n-1,sr)];</span>
+0053     <span class="comment">%g=[sum(sum(su.*s))/N;sum(sum(sd.*s))/N;sum(sum(sl.*s))/N;sum(sum(sr.*s))/N];</span>
+0054     <span class="comment">%pick a mov</span>
+0055 <span class="comment">%end</span>
+0056     
+0057</pre></div>
+<hr><address>Generated on Mon 21-May-2012 09:54:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>
