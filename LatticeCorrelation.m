@@ -1,5 +1,6 @@
-%Lattice Correlation 
 function [g]=LatticeCorrelation(s,n,s2)
+%Lattice Correlation 
+%Calculate the autocorrelation of the lattice as it is shifted in space
 [r,c]=size(s);
 N=r*c;
 c1=[];

@@ -1,5 +1,6 @@
-
 function n=neighbors2d(i,j,rows,columns)
+%neighbors2d creates a matrix whose entries return a vector of nearest
+%neighbor indices
         if nargin<4
             columns=rows;
             rows=j;

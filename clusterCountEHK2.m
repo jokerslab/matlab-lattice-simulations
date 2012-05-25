@@ -1,4 +1,5 @@
 function [c LL F pts]=clusterCountEHK2(s,value)
+%Find the clusters of connected'values' in the given lattic state s
 if nargin<2
     value=-1;
 elseif length(value)>1
