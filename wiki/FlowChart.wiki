@@ -2,13 +2,12 @@
 
 = The main code algorithm is shown below =
 
-Add your content here.
+http://matlab-lattice-simulations.googlecode.com/svn/wiki/images/Slide4.png
 
-http://matlab-lattice-simulations.googlecode.com/svn/wiki/images/crystalcluster.png
+= Classify Pairs =
 
-= Details =
+http://matlab-lattice-simulations.googlecode.com/svn/wiki/images/Slide5.png
 
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+= Choosing a move =
+
+http://matlab-lattice-simulations.googlecode.com/svn/wiki/images/Slide6.png
